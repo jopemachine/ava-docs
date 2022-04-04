@@ -12,11 +12,11 @@ AVA는 타입스크립트 definition 파일을 제공합니다. 이를 통해 �
 
 ## 테스트 파일에 AVA 사용하기
 
-### precompile 하기
+### precompile과 함께 사용하기
 
 기본적으로, AVA는 타입스크립트 테스트 파일들을 바로 로드할 수 없습니다.
 
-[`@ava/typescript`] 패키지를 사용할 수 있습니다. 해당 패키지는 `tsc` 명령어를 사용해 타입스크립트 파일을 precompile 하는 프로젝트에서 동작하도록 설계되었습니다.
+`tsc` 명령어를 사용해 타입스크립트 파일을 precompile 하는 프로젝트에서 AVA를 사용하기 위해, [`@ava/typescript`] 패키지를 사용할 수 있습니다.
 
 패키지 설치를 위해 [`@ava/typescript`]를 참조하세요.
 
@@ -43,14 +43,14 @@ AVA는 타입스크립트 definition 파일을 제공합니다. 이를 통해 �
 
 ```json
 {
-	"ava": {
-		"extensions": {
-			"ts": "module"
-		},
-		"nodeArguments": [
-			"--loader=ts-node/esm"
-		]
-	}
+  "ava": {
+    "extensions": {
+      "ts": "module"
+    },
+    "nodeArguments": [
+      "--loader=ts-node/esm"
+    ]
+  }
 }
 ```
 
@@ -58,10 +58,10 @@ AVA는 타입스크립트 definition 파일을 제공합니다. 이를 통해 �
 
 ```json
 {
-	"compilerOptions": {
-		"module": "ES2020",
-		"moduleResolution": "node"
-	}
+  "compilerOptions": {
+    "module": "ES2020",
+    "moduleResolution": "node"
+  }
 }
 ```
 
@@ -79,14 +79,14 @@ AVA는 타입스크립트 definition 파일을 제공합니다. 이를 통해 �
 
 ```json
 {
-	"ava": {
-		"extensions": [
-			"ts"
-		],
-		"require": [
-			"ts-node/register"
-		]
-	}
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  }
 }
 ```
 
@@ -106,7 +106,7 @@ import test from 'ava';
 const fn = () => 'foo';
 
 test('fn() returns foo', t => {
-	t.is(fn(), 'foo');
+  t.is(fn(), 'foo');
 });
 ```
 
@@ -120,7 +120,7 @@ AVA는 매크로를 올바르게 사용하는 것을 보장하기 위해, 이런
 import test, {ExecutionContext} from 'ava';
 
 const hasLength = (t: ExecutionContext, input: string, expected: number) => {
-	t.is(input.length, expected);
+  t.is(input.length, expected);
 };
 
 test('bar has length 3', hasLength, 'bar', 3);
@@ -132,7 +132,7 @@ test('bar has length 3', hasLength, 'bar', 3);
 import test from 'ava';
 
 const macro = test.macro((t, input: string, expected: number) => {
-	t.is(eval(input), expected);
+  t.is(eval(input), expected);
 });
 
 test('title', macro, '3 * 3', 9);
@@ -144,12 +144,12 @@ test('title', macro, '3 * 3', 9);
 import test from 'ava';
 
 const macro = test.macro({
-	exec(t, input: string, expected: number) {
-		t.is(eval(input), expected);
-	},
-	title(providedTitle = '', input, expected) {
-		return `${providedTitle} ${input} = ${expected}`.trim();
-	}
+  exec(t, input: string, expected: number) {
+    t.is(eval(input), expected);
+  },
+  title(providedTitle = '', input, expected) {
+    return `${providedTitle} ${input} = ${expected}`.trim();
+  }
 });
 
 test(macro, '2 + 2', 4);
@@ -175,19 +175,19 @@ import anyTest, {TestFn} from 'ava';
 const test = anyTest as TestFn<{foo: string}>;
 
 test.beforeEach(t => {
-	t.context = {foo: 'bar'};
+  t.context = {foo: 'bar'};
 });
 
 test.beforeEach(t => {
-	t.context.foo = 123; // error:  Type '123' is not assignable to type 'string'
+  t.context.foo = 123; // error:  Type '123' is not assignable to type 'string'
 });
 
 test.serial.failing('very long chains are properly typed', t => {
-	t.context.fooo = 'a value'; // error: Property 'fooo' does not exist on type ''
+  t.context.fooo = 'a value'; // error: Property 'fooo' does not exist on type ''
 });
 
 test('an actual test', t => {
-	t.deepEqual(t.context.foo.map(c => c), ['b', 'a', 'r']); // error: Property 'map' does not exist on type 'string'
+  t.deepEqual(t.context.foo.map(c => c), ['b', 'a', 'r']); // error: Property 'map' does not exist on type 'string'
 });
 ```
 
@@ -203,26 +203,26 @@ test('an actual test', t => {
 import test from 'ava';
 
 class CustomError extends Error {
-	parent: Error
+  parent: Error
 
-	constructor(parent) {
-		super(parent.message);
-		this.parent = parent;
-	}
+  constructor(parent) {
+    super(parent.message);
+    this.parent = parent;
+  }
 }
 
 function myFunc() {
-	throw new CustomError(new TypeError('🙈'));
+  throw new CustomError(new TypeError('🙈'));
 };
 
 test('throws', t => {
-	const err = t.throws<CustomError>(myFunc);
-	t.is(err.parent.name, 'TypeError');
+  const err = t.throws<CustomError>(myFunc);
+  t.is(err.parent.name, 'TypeError');
 });
 
 test('throwsAsync', async t => {
-	const err = await t.throwsAsync<CustomError>(async () => myFunc());
-	t.is(err.parent.name, 'TypeError');
+  const err = await t.throwsAsync<CustomError>(async () => myFunc());
+  t.is(err.parent.name, 'TypeError');
 });
 ```
 
@@ -242,15 +242,15 @@ test('throwsAsync', async t => {
 
 ```json
 {
-	"ava": {
-		"extensions": [
-			"ts"
-		],
-		"require": [
-			"ts-node/register",
-			"tsconfig-paths/register"
-		]
-	}
+  "ava": {
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ]
+  }
 }
 ```
 
@@ -259,10 +259,10 @@ test('throwsAsync', async t => {
 `tsconfig.json`:
 ```json
 {
-	"baseUrl": ".",
-	"paths": {
-		"@helpers/*": ["helpers/*"]
-	}
+  "baseUrl": ".",
+  "paths": {
+    "@helpers/*": ["helpers/*"]
+  }
 }
 ```
 
